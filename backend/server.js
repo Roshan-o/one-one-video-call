@@ -17,7 +17,7 @@ const sockeidtoemail=new Map();
 
 
 io.on('connection', (socket) => {
-    // console.log('a user connected',socket.id);
+    console.log('a user connected',socket.id);
     socket.on('join-room',({email,roomid})=>{
       // console.log('join-room at backend',email,roomid)
       emailtosockeid.set(email,socket.id);

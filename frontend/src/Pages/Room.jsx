@@ -50,8 +50,9 @@ function Room() {
 
 
   const sendStream = useCallback(() => {
+    console.log("came into senStream:");
     for (const track of stream.getTracks()) {
-      peer.peer.addTrack(track,stream);
+      peer.peer.addTrack(track, stream);
     }
   }, [stream])
 
@@ -64,13 +65,24 @@ function Room() {
   }, [sendStream]);
 
 
-  useEffect(() => {
-    peer.peer.addEventListener("track", async (event) => {
-      const remote = event.streams;
-      setremoteStream(remote[0]);
+  // useEffect(() => {
+  //   peer.peer.addEventListener("track", async (event) => {
+  //     const remote = event.streams;
+  //     setremoteStream(remote[0]);
 
-    });
-  }, [])
+  //   });
+  // }, [])
+  useEffect(() => {
+    const handleTrackEvent = (event) => {
+      setremoteStream(event.streams[0]);
+    };
+    peer.peer.addEventListener("track", handleTrackEvent);
+
+    return () => {
+      peer.peer.removeEventListener("track", handleTrackEvent);
+    };
+  }, []);
+
 
 
   const handlenego = useCallback(async () => {
@@ -115,7 +127,7 @@ function Room() {
       socket.off('user-joined', handleUserjoined); //eliminate duplicates listners
       socket.off('peer-nego-needed', handlenegoNeededIncomm);
     }
-  }, [socket, handleUserjoined, handleIncommingcall, handlecallAccepted,handlenegoNeededIncomm,
+  }, [socket, handleUserjoined, handleIncommingcall, handlecallAccepted, handlenegoNeededIncomm,
     handlenegofinal
   ]);
 
@@ -128,7 +140,8 @@ function Room() {
       {stream &&
         <>
           <h1 className='text-4xl font-bold'>My video</h1>
-          <ReactPlayer url={stream} playing muted className='h-50px w-100px border-2'></ReactPlayer>
+          <ReactPlayer url={stream} playing muted className='h-50px w-100px border-2'/>
+          {/* <video playsInline ref={(video) => video && (video.srcObject = stream)} autoPlay muted className='h-50px w-100px border-2'></video> */}
         </>
       }
       {stream &&
@@ -137,7 +150,9 @@ function Room() {
       {remoteStream &&
         <>
           <h1 className='text-4xl font-bold'>Remote Stream</h1>
-          <ReactPlayer url={remoteStream} playing muted className='h-50px w-100px border-2'></ReactPlayer>
+          <ReactPlayer url={remoteStream} playing muted className='h-50px w-100px border-2'/>
+          {/* <video playsInline ref={(video) => video && (video.srcObject = remoteStream)} autoPlay muted className='h-50px w-100px border-2'></video> */}
+
         </>
       }
     </div>
